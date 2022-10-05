@@ -29,7 +29,7 @@ trait FileManagerTrait {
                 $img = str_replace(' ', '+', $img);
                 $data = base64_decode($img);
 
-                // Image Size
+                // Image Size 2 MB validation
                 $img_size = strlen($data);
                 if($img_size > 2048000) throw new Exception('Maximal file 2MB');
 
@@ -39,7 +39,7 @@ trait FileManagerTrait {
                 $filename = preg_replace('/\s/', '-', $filename);
                 $path_image = $path . '/' . $filename;
 
-                Storage::disk('custom')->put($path_image, $data);
+                // Storage::disk('public')->put($path_image, $data);
 
                 $image  = Image::make($data)->resize($resizeWidth, $resizeHeight, function ($constraint) {
                     $constraint->aspectRatio();
@@ -48,8 +48,8 @@ trait FileManagerTrait {
                 $file_thumb = $image->getEncoded();
 
                 // save thumbnail
-                $path_thumb_image = $path . '/thumbnail/' . $filename;
-                Storage::disk('custom')->put($path_thumb_image, $file_thumb);
+                // $path_thumb_image = $path . '/thumbnail/' . $filename;
+                Storage::disk('public')->put($path_image, $file_thumb);
             }
 
             return $filename;

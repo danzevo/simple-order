@@ -149,16 +149,13 @@ class ArticleController extends Controller
 
             $article->delete();
 
-            $message = array();
-            $message['message'] = 'Data deleted successfully';
-
             DB::commit();
-            return $this->sendResponse(null, 'Update data berhasil');
+            return $this->sendResponse(null, 'Delete data berhasil');
 		} catch(\Throwable $e) {
             DB::rollback();
             $this->report($e);
 
-            return $this->sendError(400, 'Whoops, looks like something went wrong #update');
+            return $this->sendError(400, 'Whoops, looks like something went wrong #destroy');
         }
 	}
 

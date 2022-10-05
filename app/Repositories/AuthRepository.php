@@ -28,23 +28,8 @@ class AuthRepository implements AuthInterface
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            if($request->filled('role')) {
-                $user->syncRoles($request->role);
-
-                // user credit
-                if($request->role == 'premium')
-                    $credit = 40;
-                elseif($request->role == 'regular')
-                    $credit = 20;
-                elseif($request->role == 'owner')
-                    $credit = 0;
-
-                $userCredit = array(
-                    'user_id' => $user->id,
-                    'credit' => $credit,
-                );
-
-                UserCredit::create($userCredit);
+            if($user) {
+                $user->assignRole('regular');
             }
 
             $data = array(

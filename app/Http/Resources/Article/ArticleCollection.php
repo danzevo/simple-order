@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\Kos;
+namespace App\Http\Resources\Article;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class KosCollection extends ResourceCollection
+class ArticleCollection extends ResourceCollection
 {
     public function __construct($resource)
     {
