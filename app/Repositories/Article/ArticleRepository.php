@@ -27,6 +27,14 @@ class ArticleRepository implements ArticleInterface
 
             $query = Post::with(['user']);
 
+            if ($request->filled('q')) {
+                $q = strtoupper(strip_tags(trim($request->q)));
+                $query->where(function ($query) use($q) {
+                    $query->where(DB::raw('upper(title)'), 'like', '%' . $q . '%')
+                       ->orWhere(DB::raw('content'), 'like', '%' . $q . '%');
+                  });
+            }
+
             $query->latest();
 
             // jika bukan sebagai administrator
