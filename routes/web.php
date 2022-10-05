@@ -21,3 +21,6 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::resource('articles', App\Http\Controllers\Article\ArticleController::class);
+Route::get('/get-data-article', [App\Http\Controllers\Article\ArticleController::class, 'getData']);
+Route::post('/upload-article', [App\Http\Controllers\Article\ArticleController::class, 'uploadImage']);

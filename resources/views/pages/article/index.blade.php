@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Produk')
+@section('title', 'Article')
 
 @section('content_header')
-    <h1>Produk</h1>
+    <h1>Article</h1>
 @stop
 
 @section('content')
@@ -15,36 +15,51 @@
 <div class="col-lg-12">
     <div class="card">
         <div class="card-body">
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
             <div class="row">
               <button type="button" class="btn btn-primary mt-3 ml-3" onclick="$('#InputModal').modal('show');resetForm()">+ Tambah</button>
             </div>
             <div class="table-responsive mt-4">
-                <table id="product" class="table table-bordered table-striped">
+                <table id="article" class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Nama</th>
-                            <th>Deskripsi</th>
-                            <th>Harga</th>
-                            <th>Kategori</th>
+                            <th>Title</th>
+                            <th>Content</th>
+                            <th>Image</th>
+                            <th>Creator</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
-
+                    <tbody>
+                        @foreach ($data as $key => $value)
+                            <tr>
+                                <td>{{ $paging++ }}</td>
+                                <td>{{ $value['title'] }}</td>
+                                <td>{{ $value['content'] }}</td>
+                                <td>
+                                    @if($value['thumbnail_image'])
+                                    <img alt="image article" width="60" height="60" src="{{ asset('image/'.$value['thumbnail_image']) }}">
+                                    @endif
+                                </td>
+                                <td>{{ $value['user']['name'] }}</td>
+                                <td><a class="btn btn-success btn-sm"
+                                    data-id = "{{ $value['id'] }}"
+                                    data-title = "{{ $value['title'] }}"
+                                    data-content = "{{ $value['content'] }}"
+                                    data-image = "{{ $value['thumbnail_image'] }}"
+                                onclick="editArticle(this)" data-toggle="modal" data-target="#InputModal"><i class="fa fa-edit"></i> ubah</a>
+                                <a class="btn btn-warning btn-sm" onclick="destroy({{ $value['id'] }})"><i class="fa fa-trash"></i> hapus</a></td>
+                        @endforeach
+                    </tbody>
                 </table>
             </div>
+            {{-- <div class="d-flex justify-content-center"> --}}
+            {{-- </div> --}}
         </div>
     </div>
 </div>
+{{ $data->links() }}
+
 <!-- Modal -->
 <div class="modal fade" id="InputModal" aria-labelledby="InputModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -55,52 +70,31 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form method="POST" action="{{ url('admin/product/save') }}" id="formProduct">
+      <form method="POST" id="formArticle">
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
         <div class="modal-body">
           <div class="form-group row">
             <input type="hidden" id="id" name="id">
-            <label for="nama" class="col-sm-3 col-form-label">Nama</label>
+            <label for="title" class="col-sm-3 col-form-label">Title</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" autocomplete="off" id="nama" name="nama" required>
+                <input type="text" class="form-control" autocomplete="off" id="title" name="title" required>
             </div>
           </div>
           <div class="form-group row">
-            <label for="deskripsi" class="col-sm-3 col-form-label">Deskripsi</label>
+            <label for="content" class="col-sm-3 col-form-label">Content</label>
             <div class="col-sm-8">
-                <textarea class="form-control" autocomplete="off" id="deskripsi" name="deskripsi"></textarea>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="harga" class="col-sm-3 col-form-label">Harga</label>
-            <div class="col-sm-8">
-                <div class="input-group mb-3">
-                    <span class="input-group-text">Rp</span>
-                        <input type="text" autocomplete="off" class="form-control numeral-mask" id="harga" name="harga" required>
-                    <span class="input-group-text">.00</span>
-                </div>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label for="category_id" class="col-sm-3 col-form-label">Kategori</label>
-            <div class="col-sm-9">
-                <select class="form-control select2" id="category_id" name="category_id" style="width:50%">
-                    <option value=''>--Pilih--</option>
-                    @foreach($category as $row)
-                    <option value="{{ $row->id }}">{{ $row->nama }}</option>
-                    @endforeach
-                </select>
+                <textarea class="form-control" autocomplete="off" id="content" name="content"></textarea>
             </div>
           </div>
           <div class="form-group row">
             <div class="col-md-6 col-12">
-            <label for="deskripsi" class="col-sm-6 col-form-label">Produk</label>
-                <label class="label" data-toggle="tooltip" title="" data-original-title="Change image product"
+            <label for="image" class="col-sm-6 col-form-label">Image</label>
+                <label class="label" data-toggle="tooltip" title="" data-original-title="Change image article"
                     aria-describedby="tooltip733556">
                     <img class="rounded" id="avatar" width="160" height="160"
-                        src="{{ (isset($product->image_url) && $product->image_url? asset('image_product/'.$product->image_url) : asset('image_product/default-foto.png')) }}"
+                        src="{{ asset('image/default-foto.png') }}"
                         alt="avatar">
-                    <input type="file" class="sr-only" id="input" name="image" accept="image/*" form="form-product">
+                    <input type="file" class="sr-only" id="input" name="image" accept="image/*" form="form-article">
                 </label>
                 <div class="progress" style="display:none">
                     <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0"
@@ -133,7 +127,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" onclick="saveProduct()" data-dismiss="modal" id="submitProduct" class="btn btn-primary">Save</button>
+          <button type="button" onclick="saveArticle()" data-dismiss="modal" id="submitArticle" class="btn btn-primary">Save</button>
         </div>
       </form>
     </div>
@@ -152,7 +146,7 @@
 @section('js')
 <script type="text/javascript">
 $(".select2").select2();
-CKEDITOR.replace( 'deskripsi' );
+CKEDITOR.replace( 'content' );
 
 $(document).ready(function(){
   $.ajaxSetup({
@@ -160,73 +154,45 @@ $(document).ready(function(){
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
   });
-  loadList();
+//   location.reload();
 
 });
 
 function loadList() {
-    const page_url = '{{ url('admin/product/get-data') }}';
+    let page_url = '{{ url('get-data-article') }}';
 
-    $.fn.dataTable.ext.errMode = 'ignore';
-    var table = $('#product').DataTable({
-        processing: true,
-        serverSide: true,
-        "bDestroy": true,
-        ajax: {
+    $.ajax({
+            type: "GET",
             url: page_url,
-        },
-        columns: [
-            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false,searchable: false},
-            {data: 'nama', name: 'nama'},
-            {data: 'deskripsi', name: 'deskripsi'},
-            {data: 'raw_harga', name: 'raw_harga'},
-            {data: 'category_nama', name: 'category_nama'},
-            { "data": null,"sortable": false,
-                render: function (data, type, row, meta) {
-                    var result = '<a class="btn btn-success btn-sm" \
-                                    data-id = '+row.id+' \
-                                    data-nama = "'+row.nama+'" \
-                                    data-deskripsi = \''+row.deskripsi+'\' \
-                                    data-harga = '+row.harga+' \
-                                    data-category_id = '+row.category_id+' \
-                                    data-image = '+row.image+' \
-                                onclick="editProduct(this)" data-toggle="modal" data-target="#InputModal"><i class="fa fa-pencil"></i> ubah</a>&nbsp;';
-                    result += '<a class="btn btn-warning btn-sm" onclick="destroy('+row.id+')"><i class="fa fa-trash"></i> hapus</a>';
-                        return result;
-                }
-            }
-        ],
-        responsive: true,
-        oLanguage: {
-            sLengthMenu: "_MENU_",
-            sSearch: ""
-        },
-        aLengthMenu: [[4, 10, 15, 20], [4, 10, 15, 20]],
-        order: [[1, "asc"]],
-        pageLength: 10,
-        buttons: [
-        ],
-        initComplete: function (settings, json) {
-            $(".dt-buttons .btn").removeClass("btn-secondary")
-        },
-        drawCallback: function (settings) {
-            // console.log(settings.json);
-        }
-    });
+            /* beforeSend: function (xhr) {
+                var token = $('meta[name="csrf_token"]').attr('content');
 
+                if (token) {
+                    return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+                }
+            }, */
+            dataType: "json",
+            contentType: false,
+            cache : false,
+            processData : false,
+            success: function(result){
+                $('#content_result').html(result.data);
+            } ,error: function(xhr, status, error) {
+                console.log(xhr.responseJSON.message);
+            },
+
+        });
 }
 
-function editProduct(e) {
+function editArticle(e) {
         $('#id').val($(e).data('id'));
-        $('#nama').val($(e).data('nama'));
-        CKEDITOR.instances.deskripsi.setData($(e).data('deskripsi'));
-        $('#harga').val(numberWithCommas(parseInt($(e).data('harga'))));
-        $('#category_id').val($(e).data('category_id')).trigger('change');
+        $('#title').val($(e).data('title'));
+        CKEDITOR.instances.content.setData($(e).data('content'));
 
         if($(e).data('image') != null) {
-        $('#avatar').prop('src', '{{ asset('image_product') }}/'+$(e).data('image'));
+        $('#avatar').prop('src', '{{ asset('image') }}/'+$(e).data('image'));
         } else {
-        $('#avatar').prop('src', '{{ asset('image_product') }}/default-foto.png');
+        $('#avatar').prop('src', '{{ asset('image') }}/default-foto.png');
         }
 
         $('.alert').hide();
@@ -236,31 +202,27 @@ function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-  function saveProduct()
+  function saveArticle()
   {
     let id = document.getElementById('id').value;
-    let nama = document.getElementById('nama').value;
-    let deskripsi = CKEDITOR.instances['deskripsi'].getData();
-    let harga = document.getElementById('harga').value;
-    let category_id = $('#category_id').val();
+    let title = document.getElementById('title').value;
+    let content = CKEDITOR.instances['content'].getData();
     let image = document.getElementById("input").files[0];
 
-    var url = "{{ url('admin/product/save') }}";
+    var url = "{{ url('articles') }}";
     if(id != '') {
-        url = "{{ url('admin/product/update') }}/"+id;
+        url = "{{ url('articles') }}/"+id;
     }
 
-    if(nama == ''){
-          Swal.fire("Error!", "Name is required", "error");
+    if(title == ''){
+          Swal.fire("Error!", "Title is required", "error");
        }else{
         // swalLoading();
-           document.getElementById("submitProduct").disabled = true;
+           document.getElementById("submitArticle").disabled = true;
             var form_data = new FormData();
                 form_data.append('id', id);
-                form_data.append('nama', nama);
-                form_data.append('deskripsi', deskripsi);
-                form_data.append('harga', harga);
-                form_data.append('category_id', category_id);
+                form_data.append('title', title);
+                form_data.append('content', content);
                 form_data.append('image', image);
                 if(id != '') {
                     form_data.append('_method', 'PUT');
@@ -282,20 +244,20 @@ function numberWithCommas(x) {
                 cache : false,
                 processData : false,
                 success: function(result){
-                    document.getElementById("submitProduct").disabled = false;
+                    document.getElementById("submitArticle").disabled = false;
 
                     $('#InputModal').modal('hide');
                     Swal.fire("Success!", result.message, "success");
-                    loadList();
+                    location.reload();
                 } ,error: function(xhr, status, error) {
-                    // Swal.fire("Error!", 'Failed updated product', "error");
+                    // Swal.fire("Error!", 'Failed updated article', "error");
                     // console.log(xhr.responseJSON.message);
                     Swal.fire({
                     title: 'Error!',
                     icon: 'error',
                     html: xhr.responseJSON.message,
                     });
-                    document.getElementById("submitProduct").disabled = false;
+                    document.getElementById("submitArticle").disabled = false;
                 },
 
             });
@@ -303,7 +265,7 @@ function numberWithCommas(x) {
   }
 
     function destroy(id){
-        var url = "{{url('admin/product/destroy')}}"+"/"+id;
+        var url = "{{url('articles')}}"+"/"+id;
         Swal.fire({
             title: `Are you sure?`,
             text: ` will be permanantly deleted!`,
@@ -314,28 +276,28 @@ function numberWithCommas(x) {
             confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
                 if (result.value) {
-                        $.ajax({
-                    type: "POST",
-                    url: url,
-                    beforeSend: function (xhr) {
-                        var token = $('meta[name="csrf_token"]').attr('content');
+                    $.ajax({
+                        type: "DELETE",
+                        url: url,
+                        beforeSend: function (xhr) {
+                            var token = $('meta[name="csrf_token"]').attr('content');
 
-                        if (token) {
-                            return xhr.setRequestHeader('X-CSRF-TOKEN', token);
-                        }
-                    },
-                    dataType: "json",
-                    contentType: false,
-                    cache : false,
-                    processData : false,
-                    success: function(result){
-                        Swal.fire("Success!", result.message, "success");
-                        loadList();
-                    } ,error: function(xhr, status, error) {
-                        console.log(xhr.responseJSON.message);
-                    },
+                            if (token) {
+                                return xhr.setRequestHeader('X-CSRF-TOKEN', token);
+                            }
+                        },
+                        dataType: "json",
+                        contentType: false,
+                        cache : false,
+                        processData : false,
+                        success: function(result){
+                            Swal.fire("Success!", result.message, "success");
+                            location.reload();
+                        } ,error: function(xhr, status, error) {
+                            console.log(xhr.responseJSON.message);
+                        },
 
-                });
+                    });
                 }else{
 
                     }
@@ -344,14 +306,12 @@ function numberWithCommas(x) {
 
 function resetForm(){
     $('#id').val('');
-    $('#nama').val('');
-    CKEDITOR.instances.deskripsi.setData('');
-    $('#harga').val('');
+    $('#title').val('');
+    CKEDITOR.instances.content.setData('');
     $('#input').val('');
-    $('#category_id').val('').trigger('change');
     $('.alert').hide();
-    $('#avatar').prop('src', '{{ asset('image_product') }}/default-foto.png');
-    $('#formProduct').trigger("reset");
+    $('#avatar').prop('src', '{{ asset('image') }}/default-foto.png');
+    $('#formArticle').trigger("reset");
 }
 </script>
 <script>
@@ -435,7 +395,7 @@ function resetForm(){
             });
 
             formData.append('avatar', blob, 'avatar.jpg');
-            $.ajax("{{ url('admin/upload-product') }}", {
+            $.ajax("{{ url('upload-article') }}", {
               method: 'POST',
               data: formData,
               processData: false,

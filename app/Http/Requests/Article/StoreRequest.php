@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Kos;
+namespace App\Http\Requests\Article;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -19,15 +19,13 @@ class StoreRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'kos_type' => 'required|in:putra,putri,campur',
-            "kos_established" => 'required|numeric'
+            'title'=> 'required|string|max:255',
+            'content'=> 'required|string',
         ];
     }
 }
