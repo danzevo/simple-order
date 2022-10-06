@@ -248,7 +248,7 @@ function numberWithCommas(x) {
 
                     $('#InputModal').modal('hide');
                     Swal.fire("Success!", result.message, "success");
-                    location.reload();
+                    window.location = "{{ url('articles') }}";
                 } ,error: function(xhr, status, error) {
                     // Swal.fire("Error!", 'Failed updated article', "error");
                     // console.log(xhr.responseJSON.message);
@@ -292,7 +292,7 @@ function numberWithCommas(x) {
                         processData : false,
                         success: function(result){
                             Swal.fire("Success!", result.message, "success");
-                            location.reload();
+                            window.location = "{{ url('articles') }}";
                         } ,error: function(xhr, status, error) {
                             console.log(xhr.responseJSON.message);
                         },
