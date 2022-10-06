@@ -19,7 +19,7 @@ class ArticleResource extends JsonResource
             'id' => enkrip($this->id),
             'title' => $this->title,
             'content' => $this->content,
-            'thumbnail_image' => $this->thumbnail_image ? public_path('image\\'.$this->thumbnail_image) : public_path('image\\default-foto.png'),
+            'thumbnail_image' => $this->thumbnail_image ? storage_path('app\\public\\image\\'.$this->thumbnail_image) : public_path('image\\default-foto.png'),
             'user' => new UserResource($this->user)
         ];
     }

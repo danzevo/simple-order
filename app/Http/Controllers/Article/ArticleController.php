@@ -63,7 +63,7 @@ class ArticleController extends Controller
 
                     $new_name = time() . "_" . $filename;
                     $item['thumbnail_image'] = $new_name;
-                    File::move(public_path('temp_image/avatar.jpg'), public_path('image/' . $new_name));
+                    File::move(public_path('temp_image/avatar.jpg'), storage_path('app\\public\\image\\' . $new_name));
                 }
             }
 
@@ -106,11 +106,11 @@ class ArticleController extends Controller
 
                     $new_name = time() . "_" . $filename;
                     $item['thumbnail_image'] = $new_name;
-                    File::move(public_path('temp_image/avatar.jpg'), public_path('image/' . $new_name));
+                    File::move(public_path('temp_image/avatar.jpg'), storage_path('app\\public\\image\\' . $new_name));
 
                     // delete old image
                     if($image_old) {
-                        File::delete(public_path('image/' . $image_old));
+                        File::delete(storage_path('app\\public\\image\\' . $image_old));
                     }
                 }
             }
@@ -144,7 +144,7 @@ class ArticleController extends Controller
 
             // delete old image
             if($image) {
-                File::delete(public_path('image/' . $image));
+                File::delete(storage_path('app\\public\\image\\' . $image));
             }
 
             $article->delete();

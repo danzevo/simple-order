@@ -38,7 +38,7 @@
                                 <td>{{ $value['content'] }}</td>
                                 <td>
                                     @if($value['thumbnail_image'])
-                                    <img alt="image article" width="60" height="60" src="{{ asset('image/'.$value['thumbnail_image']) }}">
+                                    <img alt="image article" width="60" height="60" src="{{ asset('storage/image/'.$value['thumbnail_image']) }}">
                                     @endif
                                 </td>
                                 <td>{{ $value['user']['name'] }}</td>
@@ -190,7 +190,7 @@ function editArticle(e) {
         CKEDITOR.instances.content.setData($(e).data('content'));
 
         if($(e).data('image') != null) {
-        $('#avatar').prop('src', '{{ asset('image') }}/'+$(e).data('image'));
+        $('#avatar').prop('src', '{{ asset('storage/image') }}/'+$(e).data('image'));
         } else {
         $('#avatar').prop('src', '{{ asset('image') }}/default-foto.png');
         }

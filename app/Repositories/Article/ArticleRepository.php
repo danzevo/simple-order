@@ -118,7 +118,7 @@ class ArticleRepository implements ArticleInterface
             $filename = $article->thumbnail_image;
             if($request->filled('image')) {
                 if ($article->thumbnail_image) {
-                    \File::delete(public_path('image\\' . $article->thumbnail_image));
+                    \File::delete(storage_path('app\\public\\image\\' . $article->thumbnail_image));
                 }
 
                 //upload file
@@ -161,7 +161,7 @@ class ArticleRepository implements ArticleInterface
 
             // delete old image
             if($image) {
-                \File::delete(public_path('image/' . $image));
+                \File::delete(storage_path('app\\public\\image\\' . $image));
             }
 
             $article->delete();
