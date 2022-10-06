@@ -12,12 +12,13 @@ use App\Http\Resources\Article\{
 use Throwable;
 use DB;
 use Auth;
+use Illuminate\Support\Facades\Cache;
 
 class ArticleRepository implements ArticleInterface
 {
     use BugsnagTrait, ResponseBuilder, FileManagerTrait;
 
-    const PER_PAGE = 20;
+    const PER_PAGE = 10;
     const CURRENT_PAGE = 1;
 
     public function index($request) {
@@ -25,23 +26,13 @@ class ArticleRepository implements ArticleInterface
             $perPage = $request->perPage?:self::PER_PAGE;
             $currentPage = $request->currentPage?:self::CURRENT_PAGE;
 
-            $query = Post::with(['user']);
-
-            if ($request->filled('q')) {
-                $q = strtoupper(strip_tags(trim($request->q)));
-                $query->where(function ($query) use($q) {
-                    $query->where(DB::raw('upper(title)'), 'like', '%' . $q . '%')
-                       ->orWhere(DB::raw('content'), 'like', '%' . $q . '%');
-                  });
-            }
-
-            $query->latest();
-
-            // jika bukan sebagai administrator
+            $user_id = 0;
             if(!auth()->user()->hasRole('administrator'))
-            $query->where('article_creator', auth()->user()->id);
+                $user_id = auth()->user()->id;
 
-            $data = $query->paginate($perPage, ['*'], 'page', $currentPage);
+            $data = Cache::rememberForever('article'.$user_id.$perPage.$currentPage, function () use ($perPage, $currentPage) {
+                return $this->paginate($perPage, $currentPage);
+            });
 
             return new ArticleCollection($data);
         }catch(\Throwable $e) {
@@ -51,6 +42,92 @@ class ArticleRepository implements ArticleInterface
         }
     }
 
+    public function rebuildCache($user_id=0) {
+        try {
+            if(!auth()->user()->hasRole('administrator'))
+                $this->rebuildCacheUser();
+            elseif(auth()->user()->hasRole('administrator') && $user_id != auth()->user()->id)
+                $this->rebuildCacheUser($user_id);
+
+            //for administrator
+            $post_count = Post::count();
+
+            for($i=0;$i<$post_count;$i++) {
+                $perPage = self::PER_PAGE;
+                $currentPage = $i+1;
+
+                $user_id = 0;
+                // rebuild cache for administrator
+                Cache::forget('article'.$user_id.$perPage.$currentPage);
+
+                Cache::rememberForever('article'.$user_id.$perPage.$currentPage, function () use ($perPage, $currentPage) {
+                    return $this->paginate($perPage, $currentPage, true);
+                });
+            }
+        }catch(\Throwable $e) {
+            $this->report($e);
+
+            return $this->sendError(400, 'Whoops, looks like something went wrong #rebuildCache');
+        }
+    }
+
+    public function rebuildCacheUser($user_id = 0) {
+        try {
+            if($user_id)
+                $post_count = Post::where('article_creator', $user_id)->count();
+            else
+                $post_count = Post::where('article_creator', auth()->user()->id)->count();
+
+            for($i=0;$i<$post_count;$i++) {
+                $perPage = self::PER_PAGE;
+                $currentPage = $i+1;
+
+                if(!auth()->user()->hasRole('administrator'))
+                    $user_id = auth()->user()->id;
+
+                    Cache::forget('article'.$user_id.$perPage.$currentPage);
+
+                    Cache::rememberForever('article'.$user_id.$perPage.$currentPage, function () use ($perPage, $currentPage) {
+                        if(auth()->user()->hasRole('administrator'))
+                            return $this->paginate($perPage, $currentPage, true, $user_id);
+                        else
+                            return $this->paginate($perPage, $currentPage);
+                    });
+                // }
+            }
+        }catch(\Throwable $e) {
+            $this->report($e);
+
+            return $this->sendError(400, 'Whoops, looks like something went wrong #rebuildCacheUser');
+        }
+    }
+
+    public function paginate($perPage, $currentPage, $is_admin=false, $user_id = 0) {
+        try {
+            $query = Post::with(['user']);
+
+            $query->latest();
+
+            // jika bukan sebagai administrator
+            if(!$is_admin) {
+                if(!auth()->user()->hasRole('administrator'))
+                $query->where('article_creator', auth()->user()->id);
+            }
+
+            if($user_id) {
+                $query->where('article_creator', $user_id);
+            }
+
+            $data = $query->paginate($perPage, ['*'], 'page', $currentPage);
+            $data->withPath(url('/articles'));
+
+            return $data;
+        }catch(\Throwable $e) {
+            $this->report($e);
+
+            return $this->sendError(400, 'Whoops, looks like something went wrong #paginate');
+        }
+    }
 
 	public function show($id){
         try {
@@ -90,6 +167,11 @@ class ArticleRepository implements ArticleInterface
             );
 
             $article = Post::create($item);
+
+            // rebuild cache
+            if($article) {
+                $this->rebuildCache($article->article_creator);
+            }
 
             DB::commit();
             return $this->sendResponse(null, 'Tambah data berhasil', 201);
@@ -133,6 +215,11 @@ class ArticleRepository implements ArticleInterface
 
             $data = $article->update($item);
 
+            // rebuild cache
+            if($data) {
+                $this->rebuildCache($article->article_creator);
+            }
+
             DB::commit();
             return $this->sendResponse(null, 'Update data berhasil');
 		}catch(\Throwable $e) {
@@ -164,7 +251,10 @@ class ArticleRepository implements ArticleInterface
                 \File::delete(storage_path('app\\public\\image\\' . $image));
             }
 
-            $article->delete();
+            // rebuild cache
+            if($article->delete()){
+                $this->rebuildCache($article->article_creator);
+            }
 
             DB::commit();
             return $this->sendResponse(null, 'Delete data berhasil');

@@ -18,7 +18,7 @@ feature :
 5. php artisan key:generate
 6. php artisan storage:link
 <!-- 8. php artisan migrate --env=testing (for database testing) -->
-7. import postman collection 'mamikos.postman_collection.json' to postman or insomnia for list api
+7. import postman collection 'goKampus.postman_collection.json' to postman or insomnia for list api
 8. php artisan serve
 
 note: don't forget to enable extension=gd in php.ini
