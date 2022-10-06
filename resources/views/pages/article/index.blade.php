@@ -16,7 +16,7 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-              <button type="button" class="btn btn-primary mt-3 ml-3" onclick="$('#InputModal').modal('show');resetForm()">+ Tambah</button>
+              <button type="button" class="btn btn-primary mt-3 ml-3" onclick="$('#InputModal').modal('show');resetForm()">+ Add</button>
             </div>
             <div class="table-responsive mt-4">
                 <table id="article" class="table table-bordered table-striped">
@@ -47,8 +47,8 @@
                                     data-title = "{{ $value['title'] }}"
                                     data-content = "{{ $value['content'] }}"
                                     data-image = "{{ $value['thumbnail_image'] }}"
-                                onclick="editArticle(this)" data-toggle="modal" data-target="#InputModal"><i class="fa fa-edit"></i> ubah</a>
-                                <a class="btn btn-warning btn-sm" onclick="destroy({{ $value['id'] }})"><i class="fa fa-trash"></i> hapus</a></td>
+                                onclick="editArticle(this)" data-toggle="modal" data-target="#InputModal"><i class="fa fa-edit"></i> Edit</a>
+                                <a class="btn btn-warning btn-sm" onclick="destroy({{ $value['id'] }})"><i class="fa fa-trash"></i> Delete</a></td>
                         @endforeach
                     </tbody>
                 </table>
@@ -157,32 +157,6 @@ $(document).ready(function(){
 //   location.reload();
 
 });
-
-function loadList() {
-    let page_url = '{{ url('get-data-article') }}';
-
-    $.ajax({
-            type: "GET",
-            url: page_url,
-            /* beforeSend: function (xhr) {
-                var token = $('meta[name="csrf_token"]').attr('content');
-
-                if (token) {
-                    return xhr.setRequestHeader('X-CSRF-TOKEN', token);
-                }
-            }, */
-            dataType: "json",
-            contentType: false,
-            cache : false,
-            processData : false,
-            success: function(result){
-                $('#content_result').html(result.data);
-            } ,error: function(xhr, status, error) {
-                console.log(xhr.responseJSON.message);
-            },
-
-        });
-}
 
 function editArticle(e) {
         $('#id').val($(e).data('id'));

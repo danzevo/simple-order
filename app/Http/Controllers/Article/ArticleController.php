@@ -19,7 +19,7 @@ class ArticleController extends Controller
 {
     use BugsnagTrait, ResponseBuilder;
 
-    const PER_PAGE = 1;
+    const PER_PAGE = 10;
     const CURRENT_PAGE = 1;
 
     public function index(Request $request) {

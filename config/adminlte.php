@@ -241,6 +241,11 @@ return [
             'text'        => 'Article',
             'url'         => 'articles',
         ],
+        [
+            'text'        => 'User',
+            'url'         => 'users',
+            'can'         => 'users'
+        ],
     ],
 
     /*
