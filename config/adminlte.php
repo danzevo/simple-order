@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'goKampus',
+    'title' => 'eSales',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -45,12 +45,12 @@ return [
     |
     */
 
-    'logo' => '<b>goKampus</b>',
+    'logo' => '<b>eSales</b>',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'goKampus',
+    'logo_img_alt' => 'eSales',
 
     /*
     |--------------------------------------------------------------------------
@@ -238,13 +238,12 @@ return [
 
         ['header' => 'MENU'],
         [
-            'text'        => 'Article',
-            'url'         => 'articles',
+            'text'        => 'Order',
+            'url'         => 'product',
         ],
         [
-            'text'        => 'User',
-            'url'         => 'users',
-            'can'         => 'users'
+            'text'        => 'Report',
+            'url'         => 'transaction',
         ],
     ],
 
@@ -297,15 +296,24 @@ return [
                     'location' => '//cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js',
                 ],
                 [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdn.jsdelivr.net/npm/bs-stepper/dist/js/bs-stepper.min.js',
+                ],
+                [
                     'type' => 'css',
                     'asset' => false,
                     'location' => '//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css',
                 ],
-
                 [
                     'type' => 'css',
                     'asset' => false,
                     'location' => '//cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css',
+                ],
+                [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => '//cdn.jsdelivr.net/npm/bs-stepper/dist/css/bs-stepper.min.css',
                 ],
             ],
         ],
