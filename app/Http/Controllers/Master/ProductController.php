@@ -16,8 +16,7 @@ class ProductController extends Controller
     public function index(Request $request) {
         try {
             $data = Product::all();
-            // session()->forget('cart');
-            // dd(session('cart'));
+
             return view('pages/product/index', compact('data'));
         }catch(\Throwable $e) {
             $this->report($e);

@@ -77,13 +77,16 @@ class TransactionController extends Controller
                 }
                 session()->forget('cart');
 
-                Transaction::find($data->id)->update(['total' => TransactionDetail::sum('subtotal')]);
+                $grandtotal = TransactionDetail::where('document_code', $data->document_code)
+                                                ->where('document_number', $data->document_number)
+                                                ->sum('subtotal');
+
+                Transaction::find($data->id)->update(['total' => $grandtotal]);
             }
 
             DB::commit();
             return $this->sendResponse(null, 'Transaksi berhasil dilakukan', 201);
 		}catch(\Throwable $e) {
-            dd($e);
             DB::rollback();
             $this->report($e);
 
